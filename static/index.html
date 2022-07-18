@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>新闻查询网站</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <script src="js/jquery-1.11.0.min.js"></script>
+  <script src="js/background.cycle.js"></script>
+  <script src="js/index.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
+  <script text="text/javascript">
+
+   
+    function hidder() {
+      document.getElementById('back-pop').style.display = "none";
+    }
+    function hidder1() {
+      document.getElementById('back-pop1').style.display = "none";
+    }
+    // 查看所有新闻详细信息
+    function news_information(id_fetches) {
+      var url = "/news_information";
+      document.getElementById("back-pop").style.display = "block";
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: {
+          id_fetches: id_fetches
+        },
+        success: function (data) {
+          $("#url_pop").html("url:      " + "<a href='" + data.new_info.url + "'>" + data.new_info.url + "</a>");
+          $("#source").html("来源：   " + data.new_info.source);
+          $("#title_pop").html("标题：   " + data.new_info.title);
+          $("#keywords").html("关键词：   " + data.new_info.keywords);
+          $("#author_pop").html("作者：   " + data.new_info.author);
+          $("#date").html("发表日期：   " + data.new_info.publish_date);
+          $("#crawler_time").html("爬取日期：   " + data.new_info.crawler_time);
+          $("#summary").html("摘要：   " + data.new_info.description);
+          $("#content_pop").html("内容：    " + data.new_info.content);
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+          alert("无法获得news_information");
+          window.location = "/index.html";
+        }
+      });
+    }
+
+
+    // 查看搜索结果的详细信息
+    function search_information(id_fetches) {
+      var url = "/news_information";
+      document.getElementById("back-pop1").style.display = "block";
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: {
+          id_fetches: id_fetches
+        },
+        success: function (data) {
+          $("#url_pop1").html("url:      " + "<a href='" + data.new_info.url + "'>" + data.new_info.url + "</a>");
+          $("#source1").html("来源：   " + data.new_info.source);
+          $("#title_pop1").html("标题：   " + data.new_info.title);
+          $("#keywords1").html("关键词：   " + data.new_info.keywords);
+          $("#author_pop1").html("作者：   " + data.new_info.author);
+          $("#date1").html("发表日期：   " + data.new_info.publish_date);
+          $("#crawler_time1").html("爬取日期：   " + data.new_info.crawler_time);
+          $("#summary1").html("摘要：   " + data.new_info.description);
+          $("#content_pop1").html("内容：    " + data.new_info.content);
+
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+          alert("无法获得news_information");
+          window.location = "/index.html";
+        }
+      });
+    }
+
+    var origin_data = "";
+
+    // 展示搜索结果新闻的某一页
+    function goto_page(page_num) {
+      $(".del").remove();
+      $(".page-item").remove();
+      var select_data = origin_data.n_list.slice((page_num - 1) * origin_data.news_per_page, page_num * origin_data.news_per_page);
+      for (var i=select_data.length-1; i>=0; i--) {
+        // 控制长度，否则可能会溢出
+        if (select_data[i].title.length >= 35) {
+          select_data[i].title = select_data[i].title.slice(0, 35) + "......";
+              }
+        var title = "<td><a href='" + select_data[i].url + "'>" + select_data[i].title + "</a></td>";
+        var author = "<td>" + select_data[i].author + "</td>";
+        var publish_date = "<td>" + select_data[i].publish_date.slice(0, 10) + "</td>";
+        var source = "<td>" + select_data[i].source + "</td>";
+        var keywords = "<td>" + select_data[i].keywords + "</td>";
+        var info = "<td class='right'><input type='submit' class='search_button1'value='查看' onclick='search_information(" + select_data[i].id_fetches + ")' /></td>";
+        var del = "<tr class='del' id='" + select_data[i].id_fetches + "'>";
+
+        $("#tbody-title").after($(del + title + author + publish_date + source + keywords + info + "</tr>"));
+      }
+      for (var i = 0; i < origin_data.page_num; i++) {
+        var j = i + 1;
+        var nav_str = "<li class='page-item' > <a class='page-link' onclick='goto_page(" + j + ")'>" + j + "</a></li>";
+        if (j == page_num) {
+          var nav_str = "<li class='page-item active' > <a class='page-link' onclick='goto_page(" + j + ")'>" + j + "</a></li>";
+        }
+        $("#navs").append($(nav_str));
+      }
+    }
+
+    // 展示所有新闻的某一页
+    function goto_page1(page_num) {
+      $(".del1").remove();
+      $(".page-item1").remove();
+      var select_data = origin_data.n_list.slice((page_num - 1) * origin_data.news_per_page, page_num * origin_data.news_per_page);
+      for (var i=select_data.length-1; i>=0; i--) {
+        // 控制长度，否则可能会溢出
+        if (select_data[i].title.length >= 35) {
+          select_data[i].title = select_data[i].title.slice(0, 35) + "......";
+              }
+        var title = "<td><a href='" + select_data[i].url + "'>" + select_data[i].title + "</a></td>";
+        var author = "<td>" + select_data[i].author + "</td>";
+        var publish_date = "<td>" + select_data[i].publish_date.slice(0, 10) + "</td>";
+        var source = "<td>" + select_data[i].source + "</td>";
+        var keywords = "<td>" + select_data[i].keywords + "</td>";
+        var info = "<td class='right'><input type='submit' class='search_button1'value='查看' onclick='news_information(" + select_data[i].id_fetches + ")' /></td>";
+        var del = "<tr class='del1' id='" + select_data[i].id_fetches + "'>";
+
+        $("#tbody-title1").after($(del + title + author + publish_date + source + keywords + info + "</tr>"));
+      }
+      for (var i = 0; i < origin_data.page_num; i++) {
+        var j = i + 1;
+        var nav_str = "<li class='page-item1' > <a class='page-link' onclick='goto_page1(" + j + ")'>" + j + "</a></li>";
+        if (j == page_num) {
+          var nav_str = "<li class='page-item1 active' > <a class='page-link' onclick='goto_page1(" + j + ")'>" + j + "</a></li>";
+        }
+        $("#navs1").append($(nav_str));
+      }
+    }
+
+    // 展现数据库中的所有新闻的第一页
+    function all_news() {
+      var url = "/all_news";
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: {
+        },
+        success: function (data) {
+          origin_data = data;
+          $(".del1").remove();
+          $(".page-item1").remove();
+          // $("#delete").remove();
+          // $("#head").html("新闻");
+          for (var i = 0; i < data.news_per_page; i++) {
+            var title = "<td><a href='" + data.n_list[i].url + "'>" + data.n_list[i].title + "</a></td>";
+            var author = "<td>" + data.n_list[i].author + "</td>";
+            var publish_date = "<td>" + data.n_list[i].publish_date.slice(0, 10) + "</td>";
+            var source = "<td>" + data.n_list[i].source + "</td>";
+            var keywords = "<td>" + data.n_list[i].keywords + "</td>";
+            var info = "<td class='right'><input type='submit'class='search_button1'value='查看' onclick='news_information(" + data.n_list[i].id_fetches + ")' /></td>";
+            var del = "<tr class='del1' id='" + data.n_list[i].id_fetches + "'>";
+
+            $("#tbody-title1").after($(del + title + author + publish_date + source + keywords + info + "</tr>"));
+          }
+
+          // // 第一页是active
+          var nav_str = "<li class='page-item1 active' > <a class='page-link' onclick='goto_page1(" + 1 + ")'>" + 1 + "</a></li>";
+          $("#navs1").append($(nav_str));
+          // // 从第二页开始
+
+          for (var i = 1; i < data.page_num; i++) {
+            var j = i + 1;
+            var nav_str = "<li class='page-item1' > <a class='page-link' onclick='goto_page1(" + j + ")'>" + j + "</a></li>";
+            $("#navs1").append($(nav_str));
+          }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+          alert("无法获得all_news");
+          window.location = "/index.html";
+        }
+      });
+
+    }
+    function down(){
+      var url = "/all_news_desc";
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: {
+        },
+        success: function (data) {
+          origin_data = data;
+          $(".del1").remove();
+          $(".page-item1").remove();
+          // $("#delete").remove();
+          // $("#head").html("新闻");
+          for (var i = 0; i < data.news_per_page; i++) {
+            var title = "<td><a href='" + data.n_list[i].url + "'>" + data.n_list[i].title + "</a></td>";
+            var author = "<td>" + data.n_list[i].author + "</td>";
+            var publish_date = "<td>" + data.n_list[i].publish_date.slice(0, 10) + "</td>";
+            var source = "<td>" + data.n_list[i].source + "</td>";
+            var keywords = "<td>" + data.n_list[i].keywords + "</td>";
+            var info = "<td class='right'><input type='submit'class='search_button1'value='查看' onclick='news_information(" + data.n_list[i].id_fetches + ")' /></td>";
+            var del = "<tr class='del1' id='" + data.n_list[i].id_fetches + "'>";
+
+            $("#tbody-title1").after($(del + title + author + publish_date + source + keywords + info + "</tr>"));
+          }
+
+          // // 第一页是active
+          var nav_str = "<li class='page-item1 active' > <a class='page-link' onclick='goto_page1(" + 1 + ")'>" + 1 + "</a></li>";
+          $("#navs1").append($(nav_str));
+          // // 从第二页开始
+
+          for (var i = 1; i < data.page_num; i++) {
+            var j = i + 1;
+            var nav_str = "<li class='page-item1' > <a class='page-link' onclick='goto_page1(" + j + ")'>" + j + "</a></li>";
+            $("#navs1").append($(nav_str));
+          }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+          alert("无法获得all_news");
+          window.location = "/index.html";
+        }
+      });
+    
+    }
+   
+    function top_order(){
+      var url = "/all_news_order";
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: {
+        },
+        success: function (data) {
+          origin_data = data;
+          $(".del1").remove();
+          $(".page-item1").remove();
+          // $("#delete").remove();
+          // $("#head").html("新闻");
+          for (var i = data.news_per_page-1; i >=0; i--) {
+            var title = "<td><a href='" + data.n_list[i].url + "'>" + data.n_list[i].title + "</a></td>";
+            var author = "<td>" + data.n_list[i].author + "</td>";
+            var publish_date = "<td>" + data.n_list[i].publish_date.slice(0, 10) + "</td>";
+            var source = "<td>" + data.n_list[i].source + "</td>";
+            var keywords = "<td>" + data.n_list[i].keywords + "</td>";
+            var info = "<td class='right'><input type='submit'class='search_button1'value='查看' onclick='news_information(" + data.n_list[i].id_fetches + ")' /></td>";
+            var del = "<tr class='del1' id='" + data.n_list[i].id_fetches + "'>";
+
+            $("#tbody-title1").after($(del + title + author + publish_date + source + keywords + info + "</tr>"));
+          }
+
+          // // 第一页是active
+          var nav_str = "<li class='page-item1 active' > <a class='page-link' onclick='goto_page1(" + 1 + ")'>" + 1 + "</a></li>";
+          $("#navs1").append($(nav_str));
+          // // 从第二页开始
+          for (var i = 1; i < data.page_num; i++) {
+            var j = i + 1;
+            var nav_str = "<li class='page-item1' > <a class='page-link' onclick='goto_page1(" + j + ")'>" + j + "</a></li>";
+            $("#navs1").append($(nav_str));
+          }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+          alert("无法获得all_news");
+          window.location = "/index.html";
+        }
+      });
+    
+    }
+   
+    // 搜索结果+图表
+    function search(type) {
+      var info = "";
+      var info1 = "";
+      var symbol = "";
+      if (type == 'title') {
+        info = $('input#title').val();
+      } else if (type == 'content') {
+        info = $('input#content').val();
+      } else if (type == 'author') {
+        info = $('input#author').val();
+      } else if (type == 'publish_date') {
+        info = $('input#publish_date').val();
+      } else if (type == 'title,content') {
+        // 复合查询
+        info = $('input#title1').val();
+        info1 = $('input#content1').val();
+        symbol = $("#symbol").val();
+      }else if(type=='title,source_name'){
+         // 复合查询
+         info = $('input#title2').val();
+        info1 = $('input#content2').val();
+        symbol = $("#symbol1").val();
+      }
+      if (info == "") {
+        alert("请输入搜索内容");
+      } else {
+        var url = "/search";
+        $.ajax({
+          type: "GET",
+          url: url,
+          data: {
+            type: type,
+            info: info,
+            info1: info1,
+            symbol: symbol
+          },
+          success: function (data) {
+            origin_data = data;
+            // 将原来的元素清空
+            $(".del").remove();
+            $(".page-item").remove();
+            $("#delete").remove();
+            if (currentImageId == 1) {
+              // 菜单颜色转变
+              $(`.tm-nav-item:eq(${1})`).removeClass("active");
+              $(`.tm-nav-item:eq(${3})`).addClass("active");
+              //   页面内容转变
+              $(`.site-section-${1}`).fadeOut(function (e) {
+                $(`.site-section-${3}`).fadeIn();
+              });
+              previousImageId = 1;
+              currentImageId = 3;
+              bgCycle.cycleToNextImage(previousImageId, currentImageId);
+            }
+            // 可能有的长度小于10
+            var len = 0;
+            if (data.n_list.length < data.news_per_page) {
+              len = data.n_list.length;
+            } else {
+              len = data.news_per_page;
+            }
+            for (var i = 0; i < len; i++) {
+              // 控制长度，否则可能会溢出
+              if (data.n_list[i].title.length >= 35) {
+                data.n_list[i].title = data.n_list[i].title.slice(0, 35) + "......";
+              }
+              var title = "<td><a href='" + data.n_list[i].url + "'>" + data.n_list[i].title + "</a></td>";
+              var author = "<td>" + data.n_list[i].author + "</td>";
+              var publish_date = "<td>" + data.n_list[i].publish_date.slice(0, 10) + "</td>";
+              var source = "<td>" + data.n_list[i].source + "</td>";
+              var keywords = "<td>" + data.n_list[i].keywords + "</td>";
+              var info = "<td class='right'><input type='submit'class='search_button1'value='查看' onclick='search_information(" + data.n_list[i].id_fetches + ")' /></td>";
+              var del = "<tr class='del' id='" + data.n_list[i].id_fetches + "'>";
+
+              $("#tbody-title").after($(del + title + author + publish_date + source + keywords + info + "</tr>"));
+            }
+            var addCode = "";
+            if (data.type == "publish_date") {
+              addCode = '<div class="table-background" id="delete">' +
+                '<div class="picture_part">' +
+                '<h5 class="table_title" style="margin-left:20px;padding-top:15px">' + data.n_list[i].publish_date.slice(0, 10) + '爬取的不同网页的新闻数量  搜索类型' + data.type + '</h5>' +
+                '<div id="date-num" style="width: 500px; height: 400px;margin-left:200px">' +
+                '</div>' +
+                '<div id="date-num1" style="width: 500px; height: 400px;margin-top:-400px;margin-left:800px">' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+            } else {
+              addCode = '<div class="table-background" id="delete">' +
+                '<div class="picture_part">' +
+                '<h5 class="table_title"style="margin-left:20px;padding-top:15px">' + '时间热度分析  搜索类型' + data.type + '</h5>' +
+                '<div id="date-num" style="width: 500px; height: 400px;margin-left:200px">' +
+                '</div>' +
+                '<div id="date-num1" style="width: 500px; height: 400px;margin-top:-400px;margin-left:800px">' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+            }
+
+            $("#picture").after($(addCode));
+
+
+            // 第一页是active
+            var nav_str = "<li class='page-item active' > <a class='page-link' onclick='goto_page(" + 1 + ")'>" + 1 + "</a></li>";
+            $("#navs").append($(nav_str));
+            // // 从第二页开始
+
+            for (var i = 1; i < data.page_num; i++) {
+              var j = i + 1;
+              var nav_str = "<li class='page-item' > <a class='page-link' onclick='goto_page(" + j + ")'>" + j + "</a></li>";
+              $("#navs").append($(nav_str));
+            }
+
+
+            var data_x = [];
+            var data_y = [];
+            if (data.type == "publish_date") {
+              for (var i = 0; i < data.charts.length; i++) {
+                data_x.push(data.charts[i].source_name);
+                data_y.push(data.charts[i].cnt);
+              }
+            } else {
+              for (var i = 0; i < data.charts.length; i++) {
+                data_x.push(data.charts[i].publish_date.slice(0, 10));
+                data_y.push(data.charts[i].cnt);
+              }
+            }
+
+            data_x.reverse();
+            data_y.reverse();
+            // 准备图表
+            var chart_date_num = echarts.init(document.getElementById('date-num'));
+            var option = {
+              legend: {
+                data: ['新闻数量']
+              },
+              xAxis: {
+                data: data_x
+              },
+              yAxis: {},
+              tooltip: {
+                trigger: 'item',
+              },
+              series: [{
+                name: '新闻数量',
+                type: 'bar',
+                data: data_y,
+                itemStyle: {
+                  normal: {
+                    color: ' #1e3c72',
+                    lineStyle: {
+                      color: ' #e9ecef'
+                    }
+                  }
+                },
+              }],
+            };
+
+            chart_date_num.setOption(option);
+
+            var chart_date_num1 = echarts.init(document.getElementById('date-num1'));
+            var option1 = {
+              legend: {
+                data: ['新闻数量']
+              },
+              xAxis: {
+                data: data_x
+              },
+              yAxis: {},
+              tooltip: {
+                trigger: 'item',
+              },
+              series: [{
+                name: '新闻数量',
+                type: 'line',
+                data: data_y,
+                itemStyle: {
+                  normal: {
+                    color: ' #f7b924',
+                    lineStyle: {
+                      color: ' #f7b924'
+                    }
+                  }
+                },
+              }],
+            };
+
+            chart_date_num1.setOption(option1);
+
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("无法获得search");
+            window.location = "/index.html";
+          }
+        });
+      }
+    }
+  </script>
+  </script>
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="top-container">
+      <!-- 菜单 Bootstrap4 导航-->
+      <nav class="tm-nav">
+        <a class="tm-navbar-menu" href="#">菜单</a>
+        <ul class="tm-nav-links">
+          <li class="tm-nav-item active">
+            <a href="#" data-linkid="0" data-align="right" class="tm-nav-link">网站介绍</a>
+          </li>
+          <li class="tm-nav-item">
+            <a href="#" data-linkid="1" data-align="right" class="tm-nav-link">搜索</a>
+          </li>
+          <li class="tm-nav-item">
+            <a href="#" data-linkid="2" data-align="middle" class="tm-nav-link" onclick="all_news()">新闻</a>
+          </li>
+          <li class="tm-nav-item">
+            <a href="#" data-linkid="3" data-align="left" class="tm-nav-link">结果</a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- 网页头部 -->
+      <header class="header-box">
+        <h1 class="head-title" id="head">新闻网站查询</h1>
+      </header>
+    </div>
+
+    <div class="site-content">
+
+      <!-- Section 0 介绍 -->
+      <section class="site-section site-section-0">
+        <h2 class="section0-title"> 介绍 </h2>
+        <div class="text-box">
+          <p>
+            网站包含网易新闻，新浪新闻，网易体育以及中国新闻网的新闻信息
+          </p>
+          <p>
+            网站提供对爬取内容的分项全文搜索，给出所查关键词的时间热度分析。
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 1 查询板块 -->
+      <section class="site-section site-section-1">
+        <!-- 搜索 -->
+        <ul class="body-tabs body-tabs-layout tabs-animated body-tabs-animated nav">
+          <li class="nav-item">
+            <a role="tab" class="nav-link active" id="tab-0" data-toggle="tab" href="#tab-content-0">
+              <span>标题</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a role="tab" class="nav-link" id="tab-1" data-toggle="tab" href="#tab-content-1">
+              <span>内容</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a role="tab" class="nav-link" id="tab-2" data-toggle="tab" href="#tab-content-2">
+              <span>作者</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a role="tab" class="nav-link" id="tab-3" data-toggle="tab" href="#tab-content-3">
+              <span>发表时间</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a role="tab" class="nav-link" id="tab-4" data-toggle="tab" href="#tab-content-4">
+              <span>复合查询1</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a role="tab" class="nav-link" id="tab-5" data-toggle="tab" href="#tab-content-5">
+              <span>复合查询2</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+            <input class="search_input" name="title" id="title" type="text" placeholder="输入并搜索标题包含的关键词">
+            <input type="submit" value="查询" class="search_button" onclick="search('title')">
+          </div>
+
+          <div class="tab-pane tabs-animation fade" id="tab-content-1" role="tabpanel">
+            <input class="search_input" name="content" id="content" type="text" placeholder="输入并搜索内容包含的关键词">
+            <input type="submit" value="查询" class="search_button" onclick="search('content')">
+          </div>
+
+          <div class="tab-pane tabs-animation fade" id="tab-content-2" role="tabpanel">
+            <input class="search_input" name="content" id="author" type="text" placeholder="输入并搜索作者">
+            <input type="submit" value="查询" class="search_button" onclick="search('author')">
+          </div>
+
+          <div class="tab-pane tabs-animation fade" id="tab-content-3" role="tabpanel">
+            <input class="search_input" name="content" id="publish_date" type="text"
+              placeholder="输入并搜索发表日期（格式：例如2022-07-12）">
+            <input type="submit" value="查询" class="search_button" onclick="search('publish_date')">
+          </div>
+          <!-- 复合查询1-->
+          <div class="tab-pane tabs-animation fade" id="tab-content-4" role="tabpanel">
+            <!-- 标题 -->
+            <input name="title" class="complex_input1" id="title1" type="text" placeholder="输入标题包含的关键词">
+            <select class="complex_input2" id="symbol">
+              <option>and</option>
+              <option>or</option>
+            </select>
+            <!-- 内容 -->
+            <input class="complex_input3" name="content" id="content1" type="text" placeholder="输入内容包含的关键词">
+            <input type="submit" value="查询" class="search_button" onclick="search('title,content')">
+          </div>
+          <!-- 复合查询2 -->
+          <div class="tab-pane tabs-animation fade" id="tab-content-5" role="tabpanel">
+            <!-- 标题 -->
+            <input name="title" class="complex_input1" id="title2" type="text" placeholder="输入标题包含的关键词">
+            <select class="complex_input2" id="symbol1">
+              <option>and</option>
+              <option>or</option>
+            </select>
+            <!-- 内容 -->
+            <input class="complex_input3" name="content" id="content2" type="text" placeholder="输入来源">
+            <input type="submit" value="查询" class="search_button" onclick="search('title,source_name')">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2 新闻列表 -->
+      <section class="site-section site-section-2 ">
+        <div class="tab-content">
+          <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+            <div class="table-background">
+
+              <!-- 表格 -->
+              <table class="text-nowrap table ">
+                <tbody id="tbody-title1">
+                  <tr>
+                    <td>
+                      <h5 class="table_title">标题</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">作者</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">发表时间</h5>
+                      <div  onclick="top_order()"style=" width: 0;
+                      height: 0;
+                      border-bottom: 10px solid #ccc;
+                      border-left: 10px solid transparent;
+                      border-right: 10px solid transparent;"></div>
+                      <div id="down" onclick="down()"style="    width: 0;
+                      height: 0;
+                      border-top: 10px solid #ccc;
+                      border-left: 10px solid transparent;
+                      border-right: 10px solid transparent;margin-left:40px;margin-top:-10px"></div>
+                    </td>
+                    <td>
+                      <h5 class="table_title">来源</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">关键词</h5>
+                    </td>
+                    <td class="right">
+                      <h5 class="table_title">详细信息</h5>
+                    </td>
+                  </tr>
+                  <tr class="del1"></tr>
+                </tbody>
+              </table>
+              <!-- 页码 -->
+              <div class="pageblock">
+                <nav style="display: inline-block; margin-left: auto;text-align: center;">
+                  <ul class="body-tabs body-tabs-layout tabs-animated body-tabs-animated nav" id="navs1"></ul>
+                </nav>
+              </div>
+              <!-- 弹窗 -->
+              <div class="back-pop" id="back-pop">
+                <div id="pop-window">
+                  <div id="header1">
+                    <div id="header1-right" onclick="hidder()">x</div>
+                    <div class="width" id="url_pop"></div>
+                    <div class="width" id="title_pop"></div>
+                    <div class="width" id="date"></div>
+                    <div class="width" id="crawler_time"></div>
+                    <div class="width" id="keywords"></div>
+                    <div class="width" id="author_pop"></div>
+                    <div class="width" id="summary"></div>
+                    <div class="width" id="source"></div>
+                    <div class="width" id='content_pop'></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+      </section>
+
+      <!-- Section 3 结果图表热力分析 -->
+      <section class="site-section site-section-3">
+        <div class="tab-content">
+          <!-- tab-pane和tab-content对应 -->
+          <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+            <div class="table-background">
+              <!-- 表格 -->
+              <table class="text-nowrap table">
+                <tbody id="tbody-title">
+                  <tr>
+                    <td>
+                      <h5 class="table_title">标题</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">作者</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">发表时间</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">来源</h5>
+                    </td>
+                    <td>
+                      <h5 class="table_title">关键词</h5>
+                    </td>
+                    <td class="right">
+                      <h5 class="table_title">详细信息</h5>
+                    </td>
+                  </tr>
+                  <tr class="del"></tr>
+                </tbody>
+              </table>
+              <!-- 页码 -->
+              <div class="pageblock">
+                <nav style="display: inline-block; margin-left: auto;text-align: center;">
+                  <ul class="body-tabs body-tabs-layout tabs-animated body-tabs-animated nav" id="navs"></ul>
+                </nav>
+              </div>
+              <!-- 弹窗 -->
+              <div class="back-pop1" id="back-pop1">
+                <div id="pop-window1">
+                  <div id="header2">
+                    <div id="header2-right" onclick="hidder1()">x</div>
+                    <div class="width" id="url_pop1"></div>
+                    <div class="width" id="title_pop1"></div>
+                    <div class="width" id="date1"></div>
+                    <div class="width" id="crawler_time1"></div>
+                    <div class="width" id="keywords1"></div>
+                    <div class="width" id="author_pop1"></div>
+                    <div class="width" id="summary1"></div>
+                    <div class="width" id="source1"></div>
+                    <div class="width" id='content_pop1'></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 图表 -->
+          <div id="picture"></div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    let previousImageId = 0, currentImageId = 0;
+    let bgCycle;
+    let links;
+    let eachNavLink;
+
+    window.onload = function () {
+      $("body").addClass("loaded");
+    };
+
+    function navLinkClick(e) {
+      if ($(e.target).hasClass("external")) {
+        return;
+      }
+
+      e.preventDefault();
+
+      // 改变背景图像
+      previousImageId = currentImageId;
+      currentImageId = $(e.target).data("linkid");
+      bgCycle.cycleToNextImage(previousImageId, currentImageId);
+
+      // 改变菜单的显示
+      $(`.tm-nav-item:eq(${previousImageId})`).removeClass("active");
+      $(`.tm-nav-item:eq(${currentImageId})`).addClass("active");
+
+      // 改变页面内容
+      $(`.site-section-${previousImageId}`).fadeOut(function (e) {
+        $(`.site-section-${currentImageId}`).fadeIn();
+      });
+
+    }
+
+    $(document).ready(function () {
+      // 页面显示section0
+      $(".site-section").fadeOut(0);
+      $(".site-section-0").fadeIn();
+
+      // Set Background images
+      // https://www.jqueryscript.net/slideshow/Simple-jQuery-Background-Image-Slideshow-with-Fade-Transitions-Background-Cycle.html
+      bgCycle = $("body").backgroundCycle({
+        imageUrls: [
+          "img/background.jpg",
+          "img/background1.jpg",
+          "img/background2.jpg",
+          "img/background3.jpg"
+        ],
+        fadeSpeed: 1000,
+        duration: -1,
+        backgroundSize: SCALING_MODE_COVER
+      });
+
+      eachNavLink = $(".tm-nav-link");
+      links = $(".tm-nav-links");
+
+      // "Menu" open/close
+      if (links.hasClass("open")) {
+        links.fadeIn(0);
+      } else {
+        links.fadeOut(0);
+      }
+
+      // Each menu item click
+      eachNavLink.on("click", navLinkClick);
+      $(".tm-navbar-menu").click(function (e) {
+        if (links.hasClass("open")) {
+          links.fadeOut();
+        } else {
+          links.fadeIn();
+        }
+        links.toggleClass("open");
+      });
+    }); // DOM is ready
+
+  </script>
+</body>
+
+</html>
