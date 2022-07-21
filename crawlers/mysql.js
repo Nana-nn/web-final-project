@@ -12,10 +12,11 @@ var query = function(sql, sqlparam, callback) {
             callback(err, null, null);
         } else {
             conn.query(sql, sqlparam, function(qerr, vals, fields) {
-                conn.release(); //释放连接 
+                // conn.release(); //释放连接 
                 callback(qerr, vals, fields); //事件驱动回调 
             });
         }
+        pool.releaseConnection(conn);
     });
 };
 var query_noparam = function(sql, callback) {
@@ -24,10 +25,11 @@ var query_noparam = function(sql, callback) {
             callback(err, null, null);
         } else {
             conn.query(sql, function(qerr, vals, fields) {
-                conn.release(); //释放连接 
+                // conn.release(); //释放连接 
                 callback(qerr, vals, fields); //事件驱动回调 
             });
         }
+        pool.releaseConnection(conn);
     });
 };
 exports.query = query;
