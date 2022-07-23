@@ -50,3 +50,5 @@ node app
 ##### 视频请见：[web demo(基于nodejs)_哔哩哔哩_bilibili](https://www.bilibili.com/video/bv1B34y1J7ZY?vd_source=2639eb5da06960a4a76e9d5cdbe690d7)
 
 ##### 博客请见：[(94条消息) web编程期末大作业_this is me trying的博客-CSDN博客](https://blog.csdn.net/m0_50394599/article/details/125848054)
+
+[新闻爬虫及爬取结果的查询网站 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/545147555)
